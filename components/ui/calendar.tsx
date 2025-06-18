@@ -18,44 +18,61 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-4 bg-gradient-to-br from-white via-slate-50 to-gray-50 rounded-xl shadow-lg border border-gray-100", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
+        caption: "flex justify-center pt-2 pb-4 relative items-center",
+        caption_label: "text-lg font-semibold text-gray-800 tracking-wide",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "h-9 w-9 bg-white/80 backdrop-blur-sm border-gray-200 p-0 opacity-80 hover:opacity-100 hover:bg-white hover:shadow-md transition-all duration-300 hover:scale-105"
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
+        nav_button_previous: "absolute left-2 hover:-translate-x-0.5",
+        nav_button_next: "absolute right-2 hover:translate-x-0.5",
+        table: "w-full border-collapse mt-4",
+        head_row: "flex mb-2",
         head_cell:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+          "text-gray-500 rounded-lg w-11 h-11 font-semibold text-sm flex items-center justify-center uppercase tracking-wider",
+        row: "flex w-full mt-1",
+        cell: cn(
+          "relative p-0.5 text-center text-sm focus-within:relative focus-within:z-20",
+          "transition-all duration-200"
+        ),
         day: cn(
-          buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          "h-11 w-11 p-0 font-medium rounded-lg transition-all duration-200 hover:scale-105 active:scale-95",
+          "hover:bg-blue-50 hover:text-blue-700 hover:shadow-sm",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
+          "aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
-        day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
+        day_selected: cn(
+          "bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold",
+          "hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:scale-110",
+          "focus:from-blue-600 focus:to-blue-700 shadow-md",
+          "ring-2 ring-blue-200 ring-offset-2"
+        ),
+        day_today: cn(
+          "bg-gradient-to-br from-orange-200 to-orange-300 text-orange-900 font-bold",
+          "ring-2 ring-orange-300 ring-offset-1",
+          "hover:from-orange-300 hover:to-orange-400 hover:shadow-md"
+        ),
         day_outside:
-          "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
-        day_disabled: "text-muted-foreground opacity-50",
+          "day-outside text-gray-300 opacity-40 hover:text-gray-400 hover:opacity-60 aria-selected:bg-accent/30 aria-selected:text-muted-foreground",
+        day_disabled: "text-gray-200 opacity-25 cursor-not-allowed hover:scale-100",
         day_range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          "aria-selected:bg-blue-100 aria-selected:text-blue-800 hover:bg-blue-200",
         day_hidden: "invisible",
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        IconLeft: ({ ...props }) => (
+          <ChevronLeft className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+        ),
+        IconRight: ({ ...props }) => (
+          <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+        ),
       }}
       {...props}
     />
