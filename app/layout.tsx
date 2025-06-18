@@ -6,9 +6,12 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Fracktion - Oil Well Plugging Management",
+  title: "Fracktion",
   description: "Comprehensive project management solution for oil well plugging operations",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: '/vercel.svg',
+  }
 }
 
 export default function RootLayout({
