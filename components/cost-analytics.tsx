@@ -15,46 +15,71 @@ export function CostAnalytics({ setActivePage }: CostAnalyticsProps) {
   const [selectedTimeframe, setSelectedTimeframe] = useState("month")
   const [selectedMetric, setSelectedMetric] = useState("total")
 
-  const costMetrics = {
-    totalBudget: 2450000,
-    actualSpent: 1890000,
-    projected: 2380000,
-    variance: -70000,
-    efficiency: 92.3,
+  // Dynamic data based on selected timeframe
+  const getDataByTimeframe = (timeframe: string) => {
+    const dataMap = {
+      week: {
+        totalBudget: 125000,
+        actualSpent: 98000,
+        projected: 122000,
+        variance: -3000,
+        efficiency: 94.1,
+        campaigns: [
+          { id: "C-001", name: "North Dakota Q1", budget: 45000, actual: 41000, projected: 44000, variance: -1000, efficiency: 97.8, status: "On Track" },
+          { id: "C-002", name: "Texas Permian Phase 2", budget: 60000, actual: 47000, projected: 58000, variance: -2000, efficiency: 93.3, status: "Under Budget" },
+          { id: "C-003", name: "Pennsylvania Cleanup", budget: 20000, actual: 10000, projected: 20000, variance: 0, efficiency: 100, status: "On Track" },
+        ]
+      },
+      month: {
+        totalBudget: 2450000,
+        actualSpent: 1890000,
+        projected: 2380000,
+        variance: -70000,
+        efficiency: 92.3,
+        campaigns: [
+          { id: "C-001", name: "North Dakota Q1", budget: 850000, actual: 782000, projected: 845000, variance: -5000, efficiency: 96.2, status: "On Track" },
+          { id: "C-002", name: "Texas Permian Phase 2", budget: 1200000, actual: 890000, projected: 1180000, variance: -20000, efficiency: 94.1, status: "Under Budget" },
+          { id: "C-003", name: "Pennsylvania Cleanup", budget: 400000, actual: 218000, projected: 425000, variance: 25000, efficiency: 89.4, status: "Over Budget" },
+        ]
+      },
+      quarter: {
+        totalBudget: 7200000,
+        actualSpent: 5670000,
+        projected: 7100000,
+        variance: -100000,
+        efficiency: 91.8,
+        campaigns: [
+          { id: "C-001", name: "North Dakota Q1", budget: 2550000, actual: 2346000, projected: 2535000, variance: -15000, efficiency: 96.8, status: "On Track" },
+          { id: "C-002", name: "Texas Permian Phase 2", budget: 3600000, actual: 2670000, projected: 3540000, variance: -60000, efficiency: 94.7, status: "Under Budget" },
+          { id: "C-003", name: "Pennsylvania Cleanup", budget: 1050000, actual: 654000, projected: 1075000, variance: 25000, efficiency: 88.2, status: "Over Budget" },
+        ]
+      },
+      year: {
+        totalBudget: 28800000,
+        actualSpent: 22680000,
+        projected: 28400000,
+        variance: -400000,
+        efficiency: 90.5,
+        campaigns: [
+          { id: "C-001", name: "North Dakota Q1", budget: 10200000, actual: 9384000, projected: 10140000, variance: -60000, efficiency: 95.9, status: "On Track" },
+          { id: "C-002", name: "Texas Permian Phase 2", budget: 14400000, actual: 10680000, projected: 14160000, variance: -240000, efficiency: 93.2, status: "Under Budget" },
+          { id: "C-003", name: "Pennsylvania Cleanup", budget: 4200000, actual: 2616000, projected: 4300000, variance: 100000, efficiency: 87.4, status: "Over Budget" },
+        ]
+      }
+    }
+    return dataMap[timeframe as keyof typeof dataMap] || dataMap.month
   }
 
-  const campaignCosts = [
-    {
-      id: "C-001",
-      name: "North Dakota Q1",
-      budget: 850000,
-      actual: 782000,
-      projected: 845000,
-      variance: -5000,
-      efficiency: 96.2,
-      status: "On Track",
-    },
-    {
-      id: "C-002",
-      name: "Texas Permian Phase 2",
-      budget: 1200000,
-      actual: 890000,
-      projected: 1180000,
-      variance: -20000,
-      efficiency: 94.1,
-      status: "Under Budget",
-    },
-    {
-      id: "C-003",
-      name: "Pennsylvania Cleanup",
-      budget: 400000,
-      actual: 218000,
-      projected: 355000,
-      variance: -45000,
-      efficiency: 88.8,
-      status: "Completed",
-    },
-  ]
+  const currentData = getDataByTimeframe(selectedTimeframe)
+  const costMetrics = {
+    totalBudget: currentData.totalBudget,
+    actualSpent: currentData.actualSpent,
+    projected: currentData.projected,
+    variance: currentData.variance,
+    efficiency: currentData.efficiency,
+  }
+
+  const campaignCosts = currentData.campaigns
 
   const costBreakdown = [
     { category: "Labor", amount: 756000, percentage: 40, trend: "+5%" },
