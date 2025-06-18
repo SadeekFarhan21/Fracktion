@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Home, MapPin, Kanban, Calendar, Shield, FileSpreadsheet, BarChart3 } from "lucide-react"
@@ -55,7 +56,16 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
       </nav>
 
       <div className="p-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500 text-center">Demo Version v1.0</div>
+        <div className="flex flex-col items-center space-y-2">
+          <Image 
+            src="/vercel.svg" 
+            alt="Vercel Logo" 
+            width={80} 
+            height={20}
+            className="opacity-60 hover:opacity-100 transition-opacity duration-200"
+          />
+          <div className="text-xs text-gray-500 text-center">Demo Version v1.0</div>
+        </div>
       </div>
     </div>
   )
