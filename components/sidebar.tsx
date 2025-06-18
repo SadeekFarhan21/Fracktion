@@ -57,10 +57,10 @@ export function Sidebar({ activePage, setActivePage }: SidebarProps) {
 
       <div className="p-4 border-t border-gray-200">
         <div className="flex flex-col items-center space-y-2">
-          <Image 
-            src="/vercel.svg" 
-            alt="Vercel Logo" 
-            width={80} 
+          <Image
+            src="/vercel.svg"
+            alt="Vercel Logo"
+            width={80}
             height={20}
             className="opacity-60 hover:opacity-100 transition-opacity duration-200"
           />
