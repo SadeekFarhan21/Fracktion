@@ -7,6 +7,14 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   MapPin,
   Calendar,
   Users,
@@ -21,6 +29,7 @@ import {
   AlertCircle,
   BarChart3,
 } from "lucide-react"
+import { toast } from "sonner"
 
 // Cost estimation utility functions
 const calculateBaseCost = (well: any) => {
@@ -69,6 +78,14 @@ interface CampaignManagerProps {
 }
 
 export function CampaignManager({ setActivePage }: CampaignManagerProps) {
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [showNewCampaignModal, setShowNewCampaignModal] = useState(false)
+  const [showAllWells, setShowAllWells] = useState(false)
+  const [routeOptimized, setRouteOptimized] = useState(false)
+  const [travelTimesCalculated, setTravelTimesCalculated] = useState(false)
+  const [showRiskAssessment, setShowRiskAssessment] = useState(false)
   // Historical data simulation for cost calculations
   const historicalData = useMemo(
     () => [
@@ -209,8 +226,6 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
     },
   ])
 
-  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null)
-
   // Calculate cost estimates for each campaign
   const campaignsWithCosts = useMemo(() => {
     return campaigns.map((campaign) => {
@@ -297,6 +312,340 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
     }).format(amount)
   }
 
+  // Handler functions for button interactions
+  const handleNewCampaign = () => {
+    setShowNewCampaignModal(true)
+    toast.info("New Campaign", {
+      description: "Campaign creation form would open here"
+    })
+    console.log("Opening new campaign modal...")
+  }
+
+  const handleFilter = () => {
+    setFilterOpen(!filterOpen)
+    toast.success(filterOpen ? "Filters cleared" : "Filters applied", {
+      description: filterOpen ? "Showing all campaigns" : "Campaign filters activated"
+    })
+    console.log("Filter toggled:", !filterOpen)
+  }
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value)
+    if (value.length > 2) {
+      toast.info("Searching campaigns", {
+        description: `Looking for: "${value}"`
+      })
+    }
+    console.log("Searching for:", value)
+  }
+
+  const handlePlanRoute = (campaignId: string) => {
+    setRouteOptimized(true)
+    toast.success("Route planning initiated", {
+      description: `Optimizing route for campaign ${campaignId}`
+    })
+    console.log("Planning route for campaign:", campaignId)
+  }
+
+  const handleShowAllWells = () => {
+    setShowAllWells(!showAllWells)
+    toast.info(showAllWells ? "Wells hidden" : "All wells displayed", {
+      description: showAllWells ? "Map view cleared" : "Showing all well locations on map"
+    })
+    console.log("Show all wells toggled:", !showAllWells)
+  }
+
+  const handleOptimizeRoute = () => {
+    setRouteOptimized(!routeOptimized)
+    toast.success(routeOptimized ? "Route optimization cleared" : "Route optimized", {
+      description: routeOptimized ? "Route reset to default" : "Most efficient route calculated"
+    })
+    console.log("Route optimization toggled:", !routeOptimized)
+  }
+
+  const handleCalculateTravelTimes = () => {
+    setTravelTimesCalculated(!travelTimesCalculated)
+    toast.success(travelTimesCalculated ? "Travel times cleared" : "Travel times calculated", {
+      description: travelTimesCalculated ? "Time estimates reset" : "Estimated travel times between wells calculated"
+    })
+    console.log("Travel times calculation toggled:", !travelTimesCalculated)
+  }
+
+  const handleDetailedAnalytics = () => {
+    setActivePage("analytics")
+    toast.info("Navigating to analytics", {
+      description: "Opening detailed cost analytics dashboard"
+    })
+    console.log("Navigating to detailed analytics")
+  }
+
+  const handleRiskAssessment = () => {
+    setShowRiskAssessment(true)
+    toast.success("Risk assessment panel opened", {
+      description: "Analyzing portfolio risks and mitigation strategies"
+    })
+    console.log("Opening comprehensive risk assessment panel")
+  }
+
+  // Risk Assessment Modal Component
+  const RiskAssessmentModal = () => {
+    const calculatePortfolioRisk = () => {
+      const totalCampaigns = campaignsWithCosts.length
+      const highRiskCount = campaignsWithCosts.filter(c => c.totalCostEstimate.riskLevel === "High").length
+      const mediumRiskCount = campaignsWithCosts.filter(c => c.totalCostEstimate.riskLevel === "Medium").length
+      const lowRiskCount = campaignsWithCosts.filter(c => c.totalCostEstimate.riskLevel === "Low").length
+      
+      const totalValue = campaignsWithCosts.reduce((sum, c) => sum + c.totalCostEstimate.baseCost, 0)
+      const highRiskValue = campaignsWithCosts
+        .filter(c => c.totalCostEstimate.riskLevel === "High")
+        .reduce((sum, c) => sum + c.totalCostEstimate.baseCost, 0)
+      
+      return {
+        totalCampaigns,
+        highRiskCount,
+        mediumRiskCount,
+        lowRiskCount,
+        totalValue,
+        highRiskValue,
+        portfolioRiskScore: ((highRiskCount * 3 + mediumRiskCount * 2 + lowRiskCount * 1) / totalCampaigns).toFixed(1),
+        valueAtRisk: highRiskValue / totalValue
+      }
+    }
+
+    const portfolioRisk = calculatePortfolioRisk()
+
+    const riskFactors = [
+      { factor: "Geological Complexity", impact: "High", probability: "Medium", mitigation: "Detailed soil analysis, specialized equipment" },
+      { factor: "Weather Dependency", impact: "Medium", probability: "High", mitigation: "Seasonal planning, weather monitoring" },
+      { factor: "Equipment Failure", impact: "High", probability: "Low", mitigation: "Preventive maintenance, backup equipment" },
+      { factor: "Regulatory Changes", impact: "Medium", probability: "Medium", mitigation: "Regular compliance reviews, legal consultation" },
+      { factor: "Supply Chain Disruption", impact: "Medium", probability: "Low", mitigation: "Multiple suppliers, inventory management" },
+      { factor: "Cost Overruns", impact: "High", probability: "Medium", mitigation: "Detailed cost estimation, contingency planning" }
+    ]
+
+    return (
+      <Dialog open={showRiskAssessment} onOpenChange={setShowRiskAssessment}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <AlertCircle className="mr-2 h-5 w-5 text-red-500" />
+              Comprehensive Risk Assessment
+            </DialogTitle>
+            <DialogDescription>
+              Detailed risk analysis for your campaign portfolio
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Portfolio Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Portfolio Risk Score</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">{portfolioRisk.portfolioRiskScore}/3.0</div>
+                  <p className="text-xs text-gray-500">Higher scores indicate more risk</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Value at Risk</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-600">
+                    {(portfolioRisk.valueAtRisk * 100).toFixed(1)}%
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {formatCurrency(portfolioRisk.highRiskValue)} in high-risk campaigns
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Total Exposure</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {formatCurrency(portfolioRisk.totalValue)}
+                  </div>
+                  <p className="text-xs text-gray-500">Across {portfolioRisk.totalCampaigns} campaigns</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Risk Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Risk Distribution Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {["High", "Medium", "Low"].map((riskLevel) => {
+                    const count = riskLevel === "High" ? portfolioRisk.highRiskCount :
+                                 riskLevel === "Medium" ? portfolioRisk.mediumRiskCount :
+                                 portfolioRisk.lowRiskCount
+                    const percentage = (count / portfolioRisk.totalCampaigns) * 100
+                    return (
+                      <div key={riskLevel} className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{riskLevel} Risk Campaigns</span>
+                          <Badge className={
+                            riskLevel === "High" ? "bg-red-100 text-red-800" :
+                            riskLevel === "Medium" ? "bg-yellow-100 text-yellow-800" :
+                            "bg-green-100 text-green-800"
+                          }>
+                            {count} campaigns ({percentage.toFixed(0)}%)
+                          </Badge>
+                        </div>
+                        <Progress 
+                          value={percentage} 
+                          className={`h-2 ${
+                            riskLevel === "High" ? "[&>div]:bg-red-500" :
+                            riskLevel === "Medium" ? "[&>div]:bg-yellow-500" :
+                            "[&>div]:bg-green-500"
+                          }`}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Risk Factors Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Key Risk Factors</CardTitle>
+                <CardDescription>Identified risks and mitigation strategies</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2">Risk Factor</th>
+                        <th className="text-left py-2">Impact</th>
+                        <th className="text-left py-2">Probability</th>
+                        <th className="text-left py-2">Mitigation Strategy</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {riskFactors.map((risk, index) => (
+                        <tr key={index} className="border-b">
+                          <td className="py-3 font-medium">{risk.factor}</td>
+                          <td className="py-3">
+                            <Badge className={
+                              risk.impact === "High" ? "bg-red-100 text-red-800" :
+                              risk.impact === "Medium" ? "bg-yellow-100 text-yellow-800" :
+                              "bg-green-100 text-green-800"
+                            }>
+                              {risk.impact}
+                            </Badge>
+                          </td>
+                          <td className="py-3">
+                            <Badge className={
+                              risk.probability === "High" ? "bg-red-100 text-red-800" :
+                              risk.probability === "Medium" ? "bg-yellow-100 text-yellow-800" :
+                              "bg-green-100 text-green-800"
+                            }>
+                              {risk.probability}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-xs text-gray-600">{risk.mitigation}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Campaign-Specific Risks */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Campaign-Specific Risk Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {campaignsWithCosts.map((campaign) => (
+                    <div key={campaign.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">{campaign.name}</h4>
+                        <p className="text-sm text-gray-500">
+                          {campaign.wells.length} wells • {formatCurrency(campaign.totalCostEstimate.baseCost)} budget
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge className={
+                          campaign.totalCostEstimate.riskLevel === "High" ? "bg-red-100 text-red-800" :
+                          campaign.totalCostEstimate.riskLevel === "Medium" ? "bg-yellow-100 text-yellow-800" :
+                          "bg-green-100 text-green-800"
+                        }>
+                          {campaign.totalCostEstimate.riskLevel} Risk
+                        </Badge>
+                        <span className="text-sm text-gray-500">±{campaign.totalCostEstimate.variance}% variance</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Action Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recommended Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium">High Priority</h4>
+                      <p className="text-sm text-gray-600">
+                        Review high-risk campaigns for additional mitigation measures
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Clock className="h-5 w-5 text-blue-500 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium">Medium Priority</h4>
+                      <p className="text-sm text-gray-600">
+                        Implement enhanced monitoring for weather-dependent operations
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <TrendingUp className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium">Opportunity</h4>
+                      <p className="text-sm text-gray-600">
+                        Consider risk transfer options for high-value campaigns
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button variant="outline" onClick={() => setShowRiskAssessment(false)}>
+              Close
+            </Button>
+            <Button onClick={() => setActivePage("analytics")}>
+              View Detailed Analytics
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -313,7 +662,7 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
             <Map className="mr-2 h-4 w-4" />
             Map View
           </Button>
-          <Button>
+          <Button onClick={handleNewCampaign}>
             <Plus className="mr-2 h-4 w-4" />
             New Campaign
           </Button>
@@ -322,11 +671,15 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
 
       <div className="flex space-x-4 mb-6">
         <div className="flex-1">
-          <Input placeholder="Search campaigns..." />
+          <Input 
+            placeholder="Search campaigns..." 
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
         </div>
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleFilter}>
           <Filter className="mr-2 h-4 w-4" />
-          Filter
+          Filter {filterOpen && "(Active)"}
         </Button>
       </div>
 
@@ -552,9 +905,9 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
                     <MapPin className="mr-1 h-3 w-3" />
                     View on Map
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => handlePlanRoute(campaign.id)}>
                     <Navigation className="mr-1 h-3 w-3" />
-                    Plan Route
+                    Plan Route {routeOptimized ? "✓" : ""}
                   </Button>
                 </div>
               </CardContent>
@@ -612,11 +965,11 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Button className="w-full" variant="outline" size="sm">
+                  <Button className="w-full" variant="outline" size="sm" onClick={handleDetailedAnalytics}>
                     <TrendingUp className="mr-2 h-4 w-4" />
                     Detailed Analytics
                   </Button>
-                  <Button className="w-full" variant="outline" size="sm">
+                  <Button className="w-full" variant="outline" size="sm" onClick={handleRiskAssessment}>
                     <AlertCircle className="mr-2 h-4 w-4" />
                     Risk Assessment
                   </Button>
@@ -643,17 +996,17 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full" variant="outline" onClick={handleShowAllWells}>
                     <MapPin className="mr-2 h-4 w-4" />
-                    Show All Wells
+                    {showAllWells ? "Hide Wells" : "Show All Wells"}
                   </Button>
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full" variant="outline" onClick={handleOptimizeRoute}>
                     <Navigation className="mr-2 h-4 w-4" />
-                    Optimize Route
+                    {routeOptimized ? "Route Optimized ✓" : "Optimize Route"}
                   </Button>
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full" variant="outline" onClick={handleCalculateTravelTimes}>
                     <Clock className="mr-2 h-4 w-4" />
-                    Calculate Travel Times
+                    {travelTimesCalculated ? "Times Calculated ✓" : "Calculate Travel Times"}
                   </Button>
                 </div>
 
@@ -673,6 +1026,9 @@ export function CampaignManager({ setActivePage }: CampaignManagerProps) {
           </Card>
         </div>
       </div>
+      
+      {/* Risk Assessment Modal */}
+      <RiskAssessmentModal />
     </div>
   )
 }
